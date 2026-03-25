@@ -1,0 +1,361 @@
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+<div class="section pdf">
+	<div class="top">
+		<div class="title">
+			<h2>예비후보자 정보공개</h2>
+			<a href="javascript:window.close()" class="btn_close"><i class="blind">닫기</i></a>
+		</div>
+		<div class="combo">
+			<!-- <label title="구분 유형 선택">기본정보</label> -->
+			<button type="button" title="구분 유형 선택" class="sel_btn" aria-expanded="false">기본정보</button>
+			<ul>
+				<li class="on"><button type="button" title="선택됨"><span>기본정보</span></button></li>
+				<li><button type="button" onclick="fn_getScanSearchResult('5', '0020260603', '100153824');"><span>전과</span></button></li>
+					<li><button type="button" onclick="fn_getScanSearchResult('1', '0020260603', '100153824');"><span>학력</span></button></li>
+					</ul>
+		</div>
+	</div>
+	<div class="content">
+		<div class="basic">
+			<h4>국회의원선거</h4>
+			<ul class="list">
+				<li>
+					<ul class="man">
+						<li class="pic">
+							<a href="javascript:fn_ClickPhoto('/photo_20260603/Gsg2807/Hb100153824/gicho/100153824.JPG?ver=1989979');" title="큰 사진 보기 (새 창 열림)">
+												<img src="/photo_20260603/Gsg2807/Hb100153824/gicho/thumbnail.100153824.JPG?ver=1989979" onerror="fn_photoError(this);" alt="예비후보자 사진">
+											</a>
+										<button type="button" class="btn_plus" onclick="$(this).parent().children('a')[0].click();" title="새 창 열림"><i class="blind">크게보기</i></button>
+								</li>
+						<li class="path"><p>계양구을</p></li>
+						<li><i class="dd num">국민의힘</i></li>
+						<li><i class="dd name"><b>심왕섭</b><span class="hanja">(沈旺燮)</span></i></li>
+					</ul>
+				</li>
+			</ul>
+			<div class="data">
+				<table>
+					<caption>예비후보자 상세정보에 대한 표이며 성명, 생년월일, 주소, 직업, 학력, 경력, 전과기록유무(건수) 정보 제공</caption>
+					<tbody>
+						<tr>
+							<th>성명</th>
+							<td>심왕섭<span class="hanja">(沈旺燮)</span></td>
+						</tr>
+						<tr>
+							<th>생년월일</th>
+							<td>1959.11.20(66세)/남</td>
+						</tr>
+						<tr>
+							<th>주소</th>
+							<td>인천광역시 계양구 다남로249번길</td>
+						</tr>
+						<tr>
+							<th>직업</th>
+							<td>세림조경건설주식회사 대표이사</td>
+						</tr>
+						<tr>
+							<th>학력</th>
+							<td>성균관대학교 과학기술대학원 건설공학과졸업(조경학석사)</td>
+						</tr>
+						<tr>
+							<th>경력</th>
+							<td>(현) 재단법인 환경조경발전재단 이사장<br>(전) 계양초등학교 총동창회 제25대회장</td>
+						</tr>
+						<tr>
+							<th>전과기록유무(건수)</th>
+							<td>없음</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<ul class="notice">
+				<li><p>예비후보자정보공개자료는 국민의 선거권행사를 보장하기 위하여 공직선거법(제60조의2 제10항)의 규정에 따라 '후보자등록신청개시일 전일'까지 공개하고 있으며 동 자료를 목적외의 용도로 사용할 수 없습니다.</p></li>
+			</ul>
+		</div>
+	</div>
+	<div class="paper hide">&nbsp;</div>
+</div>
+	<input type="hidden" id="filePath" name="filePath" value="">
+
+
+<script type="text/javascript">
+var titleName;
+/**
+ * 사진 에러 불러오기 실패 처리
+ * @since  2018-02-23
+ * @modify 2018-02-23
+ */ 
+function fn_ClickPhoto(url) {
+	window.open(url, 'photo', 'scrollbars=yes,resizable=yes, width=450, height=550, left=0, top=0' );
+}
+
+/**
+ * 사진 에러 불러오기 실패 처리
+ * @since  2018-02-23
+ * @modify 2018-02-23
+ */
+function fn_photoError(el) {
+ 	$(el).attr("src",'/common/images/candidate_popup/img_left_human_no.gif');
+	var parentEl = $(el).parents(".pic:first");
+	parentEl.empty();
+	parentEl.append($(el)); 
+}
+
+/**
+ * 공약보기 함수
+ * @since  2015-03-06
+ * @modify 2015-03-06
+ */	
+
+
+/**
+ * 예비후보자정보공개 조회 함수(JSON)
+ * @since  2015-07-17
+ * @modify 2015-07-17
+ */
+function fn_getScanSearchResult( pstrGubun, pstrElectionId, pstrHuboId )
+{	
+	var strLocation  = '/electioninfo/candidate_detail_scanSearchJson.json';
+
+	var gubun   	= pstrGubun;
+	var electionId	= pstrElectionId;
+	var huboId   	= pstrHuboId;
+	var statementId = "PCRI03_candidate_scanSearch";
+
+	var params = 
+	{
+		gubun : gubun
+		, electionId : electionId
+		, huboId : huboId
+		, statementId : statementId
+	};
+
+	$.getJSONTE( strLocation, params, function( response, status ) 
+	{
+		if( response.length == 0 || response == null || response == "" ) 
+		{
+			alert("조회된 선거정보가 없습니다.");
+			return;
+		} 
+		else 
+		{
+			if(gubun == '1'){
+				titleName = '예비후보자 학력 PDF 미리보기';
+			}
+			else if(gubun == '5'){
+				titleName = '예비후보자 전과 PDF 미리보기';
+			}
+			else if(gubun == '6'){
+				titleName = '예비후보자 교육경력 PDF 미리보기';
+			}
+			else{
+				titleName = '예비후보자 PDF 미리보기';
+			}
+			
+			var strLog = '?huboCode=1&huboId='+ huboId +'&fileCode=' + gubun;
+			// 예비후보자정보공개 화면 설정 함수
+			fn_setScanSearchResult( response, strLog );
+		}
+	});
+}
+
+/**
+ * 예비후보자정보공개 화면 설정 함수
+ * @since  2015-07-17
+ * @modify 2015-07-17
+ */
+function fn_setScanSearchResult( result, pstrLog ) 
+{
+	var tempResultList  = result;
+	var arrFilePathList = new Array();
+	var strOrgFilePath	= "";
+	var strFilePath		= "";	
+	var lastIndex 		= -1;
+	var intListSize 	= Number( tempResultList.length );
+	var initFilePath	= "";
+	var initOrgFilePath	= tempResultList[ 0 ].FILEPATH;
+	var currentPage		= 0;
+	var totalPage		= intListSize;
+	var strLog 			= pstrLog;
+	
+	// PDF 파일정보 획득
+	for( var i = 0; i < intListSize; i++ )	 
+	{
+		strOrgFilePath = tempResultList[ i ].FILEPATH;	
+		strFilePath = strOrgFilePath.substring( 0, strOrgFilePath.lastIndexOf('.') ) + ".PDF";
+		
+		arrFilePathList[i] = "/unielec_pdf_file/" + strFilePath;
+	}
+
+    lastIndex = initOrgFilePath.lastIndexOf('.');
+
+	if( lastIndex != -1 )
+	{
+		initFilePath = "/unielec_pdf_file/" + initOrgFilePath.substring( 0, lastIndex ) + ".PDF";
+	}	
+			 
+	if( initFilePath != null && initFilePath != "" )
+	{
+		// PDF Viewer 화면 설정 함수 
+		fn_showPdfViewer( initFilePath, strLog );
+
+		currentPage = 1;
+		$('#currentViewPage').val( currentPage );
+		$('#totalPage').val( totalPage );
+
+		// 버튼 이벤트 부여
+		$('#backBtn').click( function() { fn_previousPage( arrFilePathList ); } );
+		$('#nextBtn').click( function() { fn_nextPage( arrFilePathList ); } );
+		$('#viewBtn').click( function() { fn_selectedScanFile( arrFilePathList ); } );
+	}
+	else
+	{
+		currentPage = 0;
+		$('#currentViewPage').val( currentPage );
+		$('#totalPage').val( totalPage );
+		
+		alert("스캔파일이 존재하지않습니다.");
+		
+		$('#backBtn').click( function() { alert("스캔파일이 존재하지않습니다."); } );
+		$('#nextBtn').click( function() { alert("스캔파일이 존재하지않습니다."); } );
+		$('#viewBtn').click( function() { alert("스캔파일이 존재하지않습니다."); } );
+	}
+}
+
+/**
+ * PDF Viewer 화면 설정 함수 
+ * @since  2015-07-17
+ * @modify 2015-07-17
+ */
+ function fn_showPdfViewer( pstrFilePath, pstrLog ) 
+ {	
+ 	
+ 	var strFilePath		= pstrFilePath;
+ 	var strLog			= pstrLog;
+ 	var tableHtml 		= "";
+ 	var basicTableHtml	= "";
+
+ 	// 기본화면 설정
+ 	
+ 	basicTableHtml = basicTableHtml +'<div class="control">';
+ 	basicTableHtml = basicTableHtml +'<input type="text" id="currentViewPage" title="현재 페이지">';
+ 	basicTableHtml = basicTableHtml +'<input type="text" id="totalPage" value="10" readonly title="전체 페이지">';
+ 	basicTableHtml = basicTableHtml +'<button type="button" id="viewBtn" class="btn_cont move"><i>페이지이동</i></button>';
+ 	basicTableHtml = basicTableHtml +'<button type="button" id="backBtn" class="btn_cont prev"><i>이전</i></button>';
+ 	basicTableHtml = basicTableHtml +'<button type="button" id="nextBtn" class="btn_cont next"><i>다음</i></button>';
+ 	basicTableHtml = basicTableHtml +'</div>';
+ 	
+ 	basicTableHtml = basicTableHtml + "<table border='0' cellpadding='0' cellspacing='0' width='100%' height='100%'>";
+ 	basicTableHtml = basicTableHtml + "<tr id='backTable'>";
+ 	// 데이터 존재여부
+ 	if( strFilePath == "" ) 
+ 	{
+ 		tableHtml = tableHtml + "<table border='0' cellpadding='0' cellspacing='0' width='700' class='cell_box_warning00'>";
+ 		tableHtml = tableHtml + "<tr>";
+ 		tableHtml = tableHtml + "<td height='8' class='box01_01'></td>";
+ 		tableHtml = tableHtml + "<td width='684' class='box01_li01'></td>";
+ 		tableHtml = tableHtml + "<td width='8' class='box01_02'></td>";
+ 		tableHtml = tableHtml + "</tr>";
+ 		tableHtml = tableHtml + "<tr>";
+ 		tableHtml = tableHtml + "<td class='box01_li04'> </td>";
+ 		tableHtml = tableHtml + "<td>";
+ 		tableHtml = tableHtml + "<table border='0' cellpadding='0' cellspacing='0' width='684'>";
+ 		tableHtml = tableHtml + "<tr>";
+ 		tableHtml = tableHtml + "<td width='65' rowspan='2'>";
+ 		tableHtml = tableHtml + "<img src='../../../../common/images/candidate_popup/img_body_warning01.gif' border='0' class='cell_box_img01' />";
+ 		tableHtml = tableHtml + "</td>";
+ 		tableHtml = tableHtml + "<td class='cell_box_warning01' width='619'> ";
+ 		tableHtml = tableHtml + "조회된 정보가 없습니다.";
+ 		tableHtml = tableHtml + "</td>";
+ 		tableHtml = tableHtml + "</tr>";
+ 		tableHtml = tableHtml + "</table>";
+ 		tableHtml = tableHtml + "</td>";
+ 		tableHtml = tableHtml + "<td class='box01_li02'></td>";
+ 		tableHtml = tableHtml + "</tr>";
+ 		tableHtml = tableHtml + "<tr>";
+ 		tableHtml = tableHtml + "<td height='8' class='box01_04'></td>";
+ 		tableHtml = tableHtml + "<td class='box01_li03'> </td>";
+ 		tableHtml = tableHtml + "<td height='8' class='box01_03'></td>";
+ 		tableHtml = tableHtml + "</tr>";
+ 		tableHtml = tableHtml + "</table>";
+ 	}
+ 	else 
+ 	{
+ 		
+
+ 		$('#filePath').val( strFilePath );
+
+ 		tableHtml = basicTableHtml + tableHtml;
+ 		tableHtml = tableHtml + "<td valign='top' height='96.7%' style='background-color: #505050;'>";
+ 		
+		var viewerJsp = 'pdfViewer/web/viewer.jsp';
+		
+			viewerJsp = 'synapViewer/synapViewer.jsp';
+		
+		
+ 		if(strLog == null || strLog == '' || typeof strLog == "undefined"){
+ 			tableHtml = tableHtml + "<iframe src='/common/"+ viewerJsp +"' width='100%' height='100%' scrolling='no' frameborder='0' title='"+titleName+"'>";
+ 		}
+ 		else{
+ 			tableHtml = tableHtml + "<iframe src='/common/"+ viewerJsp + strLog +"' width='100%' height='100%' scrolling='no' frameborder='0' title='"+titleName+"'>";
+ 		}			
+
+ 		
+ 		tableHtml = tableHtml + "</iframe>";
+ 		tableHtml = tableHtml + "</td>";
+ 		tableHtml = tableHtml + "</tr>";
+ 		tableHtml = tableHtml + "</table>";
+ 	}
+
+ 	$('.paper').html( tableHtml );
+	
+ }
+
+$(document).ready(function() {
+	$('select').change(function(){
+		var selectText = $(this).children('option:selected').text();
+		$(this).siblings('label').text(selectText);
+	});
+
+	$('.combo > .sel_btn').attr('aria-expanded', 'false');
+	
+    $('.combo > .sel_btn').click(function(){
+    	if($(window).width() < 960) {
+    		if ($(this).hasClass('on')) {
+				$(this).removeClass('on').attr('aria-expanded', 'false');
+			} else {
+				$(this).addClass('on').attr('aria-expanded', 'true');
+			}
+    	}
+	});
+    $('.combo > ul li button').click(function() {
+    	var btnOn = $('.sel_btn');
+    	
+    	if($(window).width() < 960) {
+    		if ($(btnOn).hasClass('on')) {
+				$(btnOn).removeClass('on').attr('aria-expanded', 'false');
+			} else {
+				$(btnOn).addClass('on').attr('aria-expanded', 'true');
+			}
+    	}
+    });
+
+	$('.combo ul li button').click(function(){
+		$('.combo ul li button').removeAttr('title').parents('li').removeClass('on');
+		$(this).attr('title', '선택됨').parents('li').addClass('on');
+		var comboText = $(this).text();
+		$(this).parents().siblings('button').text(comboText).removeClass('on');
+		$('.paper').removeClass('hide');
+		
+		if($(window).width() < 960) {
+			$(this).parents('li').index() == 0 ? $('.content .basic').show() : $('.content .basic').hide();
+		} else {
+			$(this).parents('li').index() == 0 ? $('.content .basic .data').show() : $('.content .basic .data').hide();
+		}
+	});
+	$('.combo ul li:eq(0) button').click(function(){
+		$('.paper').addClass('hide');
+	});
+});
+</script>
+</body>

@@ -126,14 +126,14 @@ fig.add_vline(x=0, line_width=1, line_dash="dash", line_color="#aaaaaa")
 
 # ── 한국 가구 금융자산 기준선 (단위: 천원) ────────────────────────────
 avg_asset     = 136_900    # 평균 금융자산 1억 3,690만 원
-top10_asset   = 1_050_000  # 상위 10% 금융자산 10억 5,000만 원
+top10_asset   = 1_336_510  # 상위 20% 금융자산 13억3,651만 원
 
 avg_y   = float(symlog(np.array([avg_asset]),   Y_THRESH)[0])
 top10_y = float(symlog(np.array([top10_asset]), Y_THRESH)[0])
 
 for y_val, label in [
     (avg_y,   "평균 금융자산"),
-    (top10_y, "상위 10% 금융자산"),
+    (top10_y, "상위 20% 금융자산"),
 ]:
     fig.add_hline(
         y=y_val,
@@ -152,7 +152,7 @@ for y_val, label in [
     )
 
 fig.update_layout(
-    title=dict(text="국회의원 재산 현황 (2025년 3월 기준)", font=dict(size=20)),
+    title=dict(text="국회의원 재산 현황 (2026년 3월 기준)", font=dict(size=20)),
     xaxis=dict(
         title="가액변동 (천원)",
         tickvals=x_ticks,

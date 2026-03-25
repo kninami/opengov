@@ -1,3 +1,9 @@
 .claude/settings.local.json
 /venv/
 .DS_Store
+/elections/*.csv
+/nec_links_*.csv
+/nec_summary_*.csv
+scrape_nec.py
+scrape_nec_summary.py
+download_nec.py
