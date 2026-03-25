@@ -74,107 +74,135 @@ merged["x_t"] = symlog(merged[change_col].values, X_THRESH)
 merged["y_t"] = symlog(merged[asset_col].values,  Y_THRESH)
 
 x_ticks, x_labels = symlog_ticks(X_THRESH, merged[change_col].min(), merged[change_col].max())
-y_ticks, y_labels = symlog_ticks(Y_THRESH, merged[asset_col].min(),  merged[asset_col].max())
 
-# ── 정당 색상 ──────────────────────────────────────────────────────────
+# '정보없음'으로 분류된 의원들만 추출
+no_info_members = merged[merged[party_col] == "정보없음"]
+
+print(f"\n── 정보없음으로 분류된 의원 명단 (총 {len(no_info_members)}명) ──")
+if not no_info_members.empty:
+    # 성명, 정당(정보없음으로 나옴), 현재가액 컬럼 출력
+    print(no_info_members[[name_col, party_col, asset_col]])
+else:
+    print("정보없음으로 분류된 의원이 없습니다. 모든 데이터가 잘 매칭되었습니다!")
+
+print(no_info_members.head()) # 전체 컬럼을 다 보여줘서 어떤 값이 비어있는지 확인 가능
+
+y_ticks, y_labels = symlog_ticks(Y_THRESH, merged[asset_col].min(),  merged[asset_col].max())
+# ── 3. 스타일 및 색상 설정 ─────────────────────────────────────────────────────
+FONT_FAMILY = "Pretendard, 'Noto Sans KR', sans-serif"
 party_colors = {
     "더불어민주당": "#0052A5",
+    "더불어민주연합": "#0052A5",
+    "새로운미래": "#0052A5",
     "국민의힘":     "#E61E2B",
+    "국민의미래":     "#E61E2B",
     "조국혁신당":   "#00AEEF",
     "개혁신당":     "#FF6600",
     "진보당":       "#AA0000",
     "무소속":       "#888888",
     "사회민주당":   "#F5A623",
+    "정보없음":     "#ADB5BD"
 }
 
-def get_color(party):
-    return party_colors.get(party, "#BBBBBB")
-
-# ── Plotly 차트 ────────────────────────────────────────────────────────
+# ── 4. Plotly 차트 생성 ──────────────────────────────────────────────────────
 fig = go.Figure()
 
 for party in sorted(merged[party_col].unique()):
     df_p = merged[merged[party_col] == party]
     sign_series = df_p[change_col].apply(lambda v: "+" if v >= 0 else "")
+    
     fig.add_trace(go.Scatter(
         x=df_p["x_t"],
         y=df_p["y_t"],
         mode="markers",
         name=party,
-        marker=dict(color=get_color(party), size=8, opacity=0.78,
-                    line=dict(width=0.5, color="white")),
+        marker=dict(
+            color=party_colors.get(party, "#ADB5BD"), 
+            size=10, 
+            opacity=0.75,
+            line=dict(width=0.8, color="white")
+        ),
         customdata=np.stack([
-            df_p[name_col],
-            df_p[party_col],
-            df_p[term_col],
-            df_p[asset_col],
-            df_p[change_col],
-            sign_series,
+            df_p[name_col], df_p[party_col], df_p[term_col], 
+            df_p[asset_col], df_p[change_col], sign_series
         ], axis=-1),
         hovertemplate=(
-            "<b>%{customdata[0]}</b><br>"
-            "정당: %{customdata[1]}<br>"
-            "선수: %{customdata[2]}<br>"
-            "현재가액: %{customdata[3]:,.0f} 천원<br>"
-            "가액변동: %{customdata[5]}%{customdata[4]:,.0f} 천원"
+            "<span style='font-size:16px;color:black;'><b>%{customdata[0]}</b> (%{customdata[2]})</span><br>"
+            "<span style='color:black;'>%{customdata[1]}</span><br>"
+            "<span style='color:black;'>현재가액: <b>%{customdata[3]:,.0f}</b> 천원</span><br>"
+            "<span style='color:black;'>가액변동: <b>%{customdata[5]}%{customdata[4]:,.0f}</b> 천원</span>"
             "<extra></extra>"
         ),
     ))
 
-# x=0 기준선 (변환 후 0은 그대로 0)
-fig.add_vline(x=0, line_width=1, line_dash="dash", line_color="#aaaaaa")
+# 기준선 (0점)
+fig.add_vline(x=0, line_width=1, line_dash="solid", line_color="#dee2e6")
 
-# ── 한국 가구 금융자산 기준선 (단위: 천원) ────────────────────────────
-avg_asset     = 136_900    # 평균 금융자산 1억 3,690만 원
-top10_asset   = 1_336_510  # 상위 20% 금융자산 13억3,651만 원
+# 일반 가구 금융자산 기준선 (단위: 천원)
+avg_asset     = 136_900    # 평균 1억 3,690만 원
+top20_asset   = 314_330    # 상위 20% 평균 3억 1,433만 원 (이미지 데이터 기반)
 
 avg_y   = float(symlog(np.array([avg_asset]),   Y_THRESH)[0])
-top10_y = float(symlog(np.array([top10_asset]), Y_THRESH)[0])
+top20_y = float(symlog(np.array([top20_asset]), Y_THRESH)[0])
 
-for y_val, label in [
-    (avg_y,   "평균 금융자산"),
-    (top10_y, "상위 20% 금융자산"),
-]:
-    fig.add_hline(
-        y=y_val,
-        line_width=1.5,
-        line_dash="dot",
-        line_color="red",
-    )
+for y_val, label in [(avg_y, "가구 평균 금융자산"), (top20_y, "가구 상위 20% 평균")]:
+    fig.add_hline(y=y_val, line_width=1.5, line_dash="dot", line_color="#dc3545")
     fig.add_annotation(
-        x=1, xref="paper",
-        y=y_val, yref="y",
-        text=label,
-        showarrow=False,
-        xanchor="left",
-        font=dict(color="red", size=10),
-        bgcolor="rgba(255,255,255,0.7)",
+        x=0, xref="paper", y=y_val, yref="y",
+        text=f" {label}", showarrow=False, xanchor="left", yanchor="bottom",
+        font=dict(color="#dc3545", size=11, family=FONT_FAMILY),
     )
+
+# ── 5. 레이아웃 (모바일 대응 및 Bootstrap 스타일) ─────────────────────────────
+fig.add_annotation(
+    text='데이터 출처: <a href="https://cfoi.or.kr/" style="color:#007bff; text-decoration:none;">투명사회를 위한 정보공개센터</a>',
+    xref="paper", yref="paper",
+    x=1, y=-0.18, 
+    showarrow=False,
+    xanchor="right",
+    font=dict(size=12, color="#6c757d", family=FONT_FAMILY)
+)
 
 fig.update_layout(
-    title=dict(text="국회의원 재산 현황 (2026년 3월 기준)", font=dict(size=20)),
+    title=dict(
+        text="<b>국회의원 재산 현황</b><br><span style='font-size:14px; color:gray;'>2026년 3월 정기공개 데이터 기준 (금융자산 중심)</span>",
+        font=dict(size=22, family=FONT_FAMILY, color="#212529"),
+        x=0.05, y=0.95
+    ),
     xaxis=dict(
         title="가액변동 (천원)",
-        tickvals=x_ticks,
-        ticktext=x_labels,
-        showgrid=True,
-        gridcolor="#e5e5e5",
+        tickvals=x_ticks, ticktext=x_labels,
+        gridcolor="#f1f3f5", zeroline=False,
+        title_font=dict(size=13, family=FONT_FAMILY)
     ),
     yaxis=dict(
         title="현재가액 (천원)",
-        tickvals=y_ticks,
-        ticktext=y_labels,
-        showgrid=True,
-        gridcolor="#e5e5e5",
+        tickvals=y_ticks, ticktext=y_labels,
+        gridcolor="#f1f3f5", zeroline=False,
+        title_font=dict(size=13, family=FONT_FAMILY)
     ),
-    legend=dict(title="정당", x=1.01, y=1),
-    hovermode="closest",
-    plot_bgcolor="#F9F9F9",
-    paper_bgcolor="#ffffff",
-    height=700,
-    margin=dict(r=160),
+    legend=dict(
+        orientation="h",   # 모바일 대응: 하단 가로 배치
+        yanchor="bottom",
+        y=-0.3,           
+        xanchor="center",
+        x=0.5,
+        font=dict(family=FONT_FAMILY, size=12),
+        bgcolor="rgba(255,255,255,0)"
+    ),
+    margin=dict(l=60, r=40, t=100, b=150),
+    plot_bgcolor="white",
+    paper_bgcolor="white",
+    hoverlabel=dict(
+        bgcolor="white",
+        font_size=13,
+        font_family=FONT_FAMILY,
+        bordercolor="#dee2e6"
+    ),
+    height=850
 )
 
-fig.write_html("asset_chart.html")
-print("asset_chart.html 저장 완료")
+# ── 6. 저장 및 실행 ──────────────────────────────────────────────────────────
+fig.write_html("asset_chart_pro.html", include_plotlyjs='cdn')
+print("✅ 출처와 모바일 최적화가 적용된 'asset_chart_pro.html' 저장이 완료되었습니다.")
 fig.show()
