@@ -331,7 +331,7 @@ html_template = f"""
 """
 
 # HTML 파일 저장
-output_filename = "asset_chart_pro_final.html"
+output_filename = "asset_chart.html"
 with open(output_filename, "w", encoding="utf-8") as f:
     f.write(html_template)
 
