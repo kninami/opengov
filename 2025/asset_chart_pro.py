@@ -185,16 +185,16 @@ fig.update_layout(
         title_font=dict(size=13, family=FONT_FAMILY)
     ),
     legend=dict(
-        orientation="h",   # 하단 가로 배치 (모바일 최적화)
+        orientation="h",
         yanchor="bottom",
-        y=-0.3,           
+        y=1.02,
         xanchor="center",
         x=0.5,
-        font=dict(family=FONT_FAMILY, size=12),
-        bgcolor="rgba(255,255,255,0)"
+        font=dict(family=FONT_FAMILY, size=11),
+        bgcolor="rgba(255,255,255,0)",
+        itemsizing="constant",
     ),
-    # 출처 표시는 파이썬 외부 템플릿(Footer)에서 처리합니다.
-    margin=dict(l=60, r=40, t=20, b=120), # 상단 여백 축소 (패널이 위에 들어감)
+    margin=dict(l=60, r=40, t=60, b=60),
     plot_bgcolor="white",
     paper_bgcolor="white",
     # 툴팁 모서리 라운딩 및 스타일
@@ -212,7 +212,7 @@ fig.update_layout(
 
 # ── 6. HTML 생성 (메타태그 및 Bootstrap 패널 포함) ─────────────────────────────
 # 차트 객체를 HTML div 문자열로 변환
-chart_div = plot(fig, output_type='div', include_plotlyjs='cdn')
+chart_div = plot(fig, output_type='div', include_plotlyjs='cdn', config=dict(responsive=True))
 
 # 메타데이터 정의
 page_title = "2026 국회의원 금융자산 시각화"
@@ -243,12 +243,12 @@ html_template = f"""
             padding-bottom: 2rem;
         }}
         .container-xl{{
-			padding:50px;
+			padding: 50px;
 		}}
         .chart-container {{
             background-color: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Bootstrap 스타일 그림자 */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             padding: 2rem;
             margin-bottom: 2rem;
         }}
@@ -267,6 +267,29 @@ html_template = f"""
 			font-size: 1.2rem;
 			font-weight: 400;
 		}}
+        /* ── 모바일 반응형 ── */
+        @media (max-width: 768px) {{
+            .container-xl {{
+                padding: 16px !important;
+            }}
+            .chart-container {{
+                padding: 0.5rem;
+                border-radius: 8px;
+            }}
+            .page-header h1 {{
+                font-size: 1.2rem !important;
+            }}
+            .page-header h1 small {{
+                font-size: 0.8rem;
+            }}
+            .alert {{
+                padding: 1rem !important;
+            }}
+            .plotly-graph-div {{
+                height: 520px !important;
+                min-height: 520px !important;
+            }}
+        }}
         
     </style>
 </head>
@@ -320,6 +343,7 @@ html_template = f"""
     <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
   </symbol>
 </svg>
+
 
 </body>
 </html>
