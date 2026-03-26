@@ -6,38 +6,30 @@ import os
 
 # ── 1. 데이터 로드 및 전처리 (기존 로직 유지) ──────────────────────────────────
 # (CSV 파일이 없는 경우를 대비해 예외 처리를 추가했습니다.)
-total_data_path = "total_data.csv"
-api_csv_path = "api_csv.csv"
+total_data_path = "2026_total.csv"
 
-if not os.path.exists(total_data_path) or not os.path.exists(api_csv_path):
-    print(f"❌ 오류: '{total_data_path}' 또는 '{api_csv_path}' 파일이 필요합니다.")
+if not os.path.exists(total_data_path):
+    print(f"❌ 오류: '{total_data_path}' 파일이 필요합니다.")
     print("데이터 파일이 있는 경로에서 코드를 실행해주세요.")
     exit()
 
 try:
     total_df = pd.read_csv(total_data_path, encoding="utf-8-sig")
-    api_df = pd.read_csv(api_csv_path, encoding="utf-8-sig")
 except Exception as e:
     print(f"❌ 오류: 파일을 읽는 중 문제가 발생했습니다: {e}")
     exit()
 
 # 컬럼명 정리 및 변수 할당
 total_df.columns = [col.strip() for col in total_df.columns]
-api_df.columns = [col.strip() for col in api_df.columns]
 
 total_cols = total_df.columns.tolist()
-mona_col   = total_cols[2]   # C: monaCode
-name_col   = total_cols[6]   # G: 성명
-asset_col  = total_cols[13]  # N: 현재가액
-change_col = total_cols[15]  # P: 가액변동
+name_col   = total_cols[3]   # D: 성명
+party_col  = total_cols[4]   # E: 소속 (정당)
+term_col   = total_cols[6]   # G: 재선여부
+asset_col  = total_cols[10]  # K: 현재가액
+change_col = total_cols[12]  # M: 가액변동
 
-api_cols  = api_df.columns.tolist()
-code_col  = api_cols[0]   # A: 국회의원코드
-party_col = api_cols[8]   # I: 정당명
-term_col  = api_cols[13]  # N: 재선구분명
-
-total_sub = total_df[[mona_col, name_col, asset_col, change_col]].copy()
-api_sub   = api_df[[code_col, party_col, term_col]].copy()
+total_sub = total_df[[name_col, party_col, term_col, asset_col, change_col]].copy()
 
 # 데이터 정제 (symlog 변환을 위해 필수)
 for col in [asset_col, change_col]:
@@ -47,12 +39,8 @@ for col in [asset_col, change_col]:
     )
     total_sub[col] = pd.to_numeric(total_sub[col], errors="coerce")
 
-# 병합 전 키값 정제 (꿀팁: 문자열로 통일하고 공백 제거)
-total_sub[mona_col] = total_sub[mona_col].astype(str).str.strip()
-api_sub[code_col] = api_sub[code_col].astype(str).str.strip()
-
-# 데이터 병합 및 결측치 처리
-merged = total_sub.merge(api_sub, left_on=mona_col, right_on=code_col, how="left")
+# 결측치 처리 (2026_total.csv에는 정당·재선 정보가 이미 포함됨)
+merged = total_sub.copy()
 merged[party_col] = merged[party_col].fillna("정보없음")
 merged[term_col]  = merged[term_col].fillna("정보없음")
 merged[party_col] = merged[party_col].apply(lambda x: x.split("/")[-1].strip())
@@ -109,6 +97,7 @@ party_colors = {
     "조국혁신당":   "#00AEEF",
     "개혁신당":     "#FF6600",
     "진보당":       "#AA0000",
+    "기본소득당":   "#00D2C3",
     "무소속":       "#888888",
     "사회민주당":   "#F5A623",
     "정보없음":     "#ADB5BD"
@@ -304,15 +293,21 @@ html_template = f"""
         {chart_div}
     </div>
 
-   <footer class="text-center py-4 mt-5 bg-dark text-white-50">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-auto">
-					<p class="mb-0 small">
-						<strong>Data Source</strong> <a href="{data_source_url}" target="_blank" class="link-light text-decoration-none fw-bold">투명사회를 위한 정보공개센터</a>
-      &nbsp;&nbsp;	
-						<strong>By</strong> 갱 (도토리랩스)
-					</p>
+   <footer style="background:#f8f9fa; padding: 2.5rem 1rem 2rem; margin-top: 3rem;">
+		<div class="container text-center">
+			<div class="d-flex justify-content-center align-items-center gap-4 flex-wrap mb-3">
+				<div style="text-align:left;">
+					<div style="color:#1a1a2e; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; opacity:0.5;">Data Source</div>
+					<a href="{data_source_url}" target="_blank"
+					   style="color:#1a1a2e; font-weight:600; font-size:0.9rem; text-decoration:none; border-bottom:1px solid #1a1a2e; padding-bottom:1px;"
+					   onmouseover="this.style.opacity='0.6'" onmouseout="this.style.opacity='1'">
+						투명사회를 위한 정보공개센터
+					</a>
+				</div>
+    <br/>
+				<div style="text-align:left;">
+					<div style="color:#1a1a2e; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; opacity:0.5;">Made by</div>
+					<span style="color:#1a1a2e; font-weight:600; font-size:0.9rem;">갱 <span style="opacity:0.5; font-weight:400;">· 도토리랩스</span></span>
 				</div>
 			</div>
 		</div>
