@@ -243,7 +243,7 @@ html_template = f"""
             padding-bottom: 2rem;
         }}
         .container-xl{{
-			padding: 50px;
+			padding: 20px;
 		}}
         .chart-container {{
             background-color: white;
@@ -253,7 +253,29 @@ html_template = f"""
             margin-bottom: 2rem;
         }}
         .page-header {{
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
+            padding: 2rem 1rem 1rem;
+        }}
+        .page-header .eyebrow {{
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #4f8ef7;
+            margin-bottom: 0.6rem;
+        }}
+        .page-header h1 {{
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1.25;
+            margin-bottom: 0.5rem;
+        }}
+        .page-header .subtitle {{
+            font-size: 0.82rem;
+            color: #8a94a6;
+            margin: 0;
         }}
         .text-muted{{
 			color: #6c757d;
@@ -277,10 +299,10 @@ html_template = f"""
                 border-radius: 8px;
             }}
             .page-header h1 {{
-                font-size: 1.2rem !important;
+                font-size: 1.65rem !important;
             }}
-            .page-header h1 small {{
-                font-size: 0.8rem;
+            .page-header .subtitle {{
+                font-size: 0.75rem;
             }}
             .alert {{
                 padding: 1rem !important;
@@ -297,9 +319,9 @@ html_template = f"""
 
 <div class="container-xl">
     <div class="page-header text-center">
-        <h1 class="fw-bold text-dark h2">{page_title}<br/>
-        <small class="text-muted small">2026년 3월 정기공개 데이터 기준 (실물자산 제외, 금융자산 중심)</small>
-        </h1>
+        <span class="eyebrow">2026 · 공직자 재산공개</span>
+        <h1>{page_title}</h1>
+        <p class="subtitle">2026년 3월 정기공개 데이터 기준 &nbsp;·&nbsp; 실물자산 제외, 금융자산 중심</p>
     </div>
 
     <div class="alert alert-light border shadow-sm rounded-3 mb-4 p-4" role="alert">
