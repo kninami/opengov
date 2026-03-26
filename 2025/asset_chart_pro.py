@@ -446,7 +446,7 @@ html_template = f"""
     <br/>
 				<div style="text-align:left;">
 					<div style="color:#1a1a2e; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; opacity:0.5;">Made by</div>
-					<span style="color:#1a1a2e; font-weight:600; font-size:0.9rem;">갱 <span style="opacity:0.5; font-weight:400;">· 도토리랩스</span></span>
+					<span style="color:#1a1a2e; font-weight:600; font-size:0.9rem;">갱 <span style="opacity:0.5; font-weight:400;">· 도토리랩스 with Claude</span></span>
 				</div>
 			</div>
 		</div>
