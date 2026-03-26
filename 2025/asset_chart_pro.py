@@ -210,12 +210,43 @@ fig.update_layout(
     hovermode="closest" # 중요: 태그 렌더링을 위해 필요
 )
 
-# ── 6. HTML 생성 (메타태그 및 Bootstrap 패널 포함) ─────────────────────────────
+# ── 6. 정당별 평균 통계 카드 HTML 생성 ────────────────────────────────────────
+party_stats = (
+    merged.groupby(party_col)
+    .agg(count=(asset_col, "count"), avg_asset=(asset_col, "mean"), avg_change=(change_col, "mean"))
+    .reset_index()
+    .sort_values("avg_asset", ascending=False)
+)
+
+def fmt_change(val):
+    if val > 0:
+        return f"<span style='color:#e52233; font-weight:700;'>▲ +{int(val):,}</span>"
+    elif val < 0:
+        return f"<span style='color:#0033ff; font-weight:700;'>▼ {int(val):,}</span>"
+    else:
+        return "<span style='color:#888; font-weight:700;'>- 0</span>"
+
+party_cards_html = ""
+for _, row in party_stats.iterrows():
+    party = row[party_col]
+    color = party_colors.get(party, "#ADB5BD")
+    count = int(row["count"])
+    avg_asset = int(row["avg_asset"])
+    avg_change = row["avg_change"]
+    party_cards_html += f"""
+        <div class="party-stat-card">
+            <div class="party-badge" style="background:{color};"></div>
+            <div class="party-name">{party} <span class="party-count">({count}명)</span></div>
+            <div class="party-asset">평균 자산 <strong>{avg_asset:,}</strong> <span>천원</span></div>
+            <div class="party-change">평균 변동 {fmt_change(avg_change)} <span>천원</span></div>
+        </div>"""
+
+# ── 7. HTML 생성 (메타태그 및 Bootstrap 패널 포함) ─────────────────────────────
 # 차트 객체를 HTML div 문자열로 변환
 chart_div = plot(fig, output_type='div', include_plotlyjs='cdn', config=dict(responsive=True))
 
 # 메타데이터 정의
-page_title = "2026 국회의원 금융자산 시각화"
+page_title = "2026 국회의원 금융자산"
 page_description = "2026년 3월 정기공개 데이터를 기반으로 한 대한민국 국회의원의 현재 금융자산 및 가액변동 현황 그래프입니다."
 data_source_url = "https://cfoi.or.kr/"
 
@@ -289,6 +320,62 @@ html_template = f"""
 			font-size: 1.2rem;
 			font-weight: 400;
 		}}
+        /* ── 정당 통계 카드 ── */
+        .party-stats-section {{
+            margin-bottom: 2rem;
+        }}
+        .party-stats-section .section-label {{
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #8a94a6;
+            margin-bottom: 0.75rem;
+        }}
+        .party-stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }}
+        .party-stat-card {{
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }}
+        .party-badge {{
+            width: 28px;
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 0.3rem;
+        }}
+        .party-name {{
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }}
+        .party-count {{
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: #8a94a6;
+        }}
+        .party-asset {{
+            font-size: 0.78rem;
+            color: #8a94a6;
+        }}
+        .party-asset strong {{
+            color: #1a1a2e;
+        }}
+        .party-asset span, .party-change span {{
+            font-size: 0.7rem;
+        }}
+        .party-change {{
+            font-size: 0.78rem;
+            color: #8a94a6;
+        }}
         /* ── 모바일 반응형 ── */
         @media (max-width: 768px) {{
             .container-xl {{
@@ -321,7 +408,7 @@ html_template = f"""
     <div class="page-header text-center">
         <span class="eyebrow">2026 · 공직자 재산공개</span>
         <h1>{page_title}</h1>
-        <p class="subtitle">2026년 3월 정기공개 데이터 기준 &nbsp;·&nbsp; 실물자산 제외, 금융자산 중심</p>
+        <p class="subtitle">2026년 3월 정기공개 데이터 기준</p>
     </div>
 
     <div class="alert alert-light border shadow-sm rounded-3 mb-4 p-4" role="alert">
@@ -336,6 +423,13 @@ html_template = f"""
 
     <div class="chart-container">
         {chart_div}
+    </div>
+
+    <div class="party-stats-section">
+        <p class="section-label">정당별 평균 금융자산 현황 (평균 자산 순)</p>
+        <div class="party-stats-grid">
+            {party_cards_html}
+        </div>
     </div>
 
    <footer style="background:#f8f9fa; padding: 2.5rem 1rem 2rem; margin-top: 3rem;">
